@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.horizon.pmdemo.mapper.PMMapper" >
+    <resultMap id="BaseResultMap" type="com.horizon.pmdemo.model.PM" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="no" property="no" jdbcType="VARCHAR" />
+        <result column="deviceid" property="deviceId" jdbcType="VARCHAR" />
+        <result column="mpid" property="mpId" jdbcType="VARCHAR" />
+        <result column="signalnumber" property="signalNumber" jdbcType="VARCHAR" />
+        <result column="mpdes" property="mpDes" jdbcType="VARCHAR" />
+        <result column="mptype" property="mpType" jdbcType="VARCHAR" />
+        <result column="year" property="year" jdbcType="VARCHAR" />
+        <result column="month" property="month" jdbcType="VARCHAR" />
+        <result column="day" property="day" jdbcType="VARCHAR" />
+        <result column="hour" property="hour" jdbcType="VARCHAR" />
+        <result column="curtime" property="curTime" jdbcType="TIMESTAMP" />
+        <result column="curvalue" property="curValue" jdbcType="DOUBLE" />
+    </resultMap>
+    <resultMap id="PreRecord" type="com.horizon.pmdemo.model.PM">
+        <result column="year" property="year" jdbcType="VARCHAR" />
+        <result column="month" property="month" jdbcType="VARCHAR" />
+        <result column="day" property="day" jdbcType="VARCHAR" />
+        <result column="hour" property="hour" jdbcType="VARCHAR" />
+        <result column="curtime" property="curTime" jdbcType="TIMESTAMP" />
+        <result column="curvalue" property="curValue" jdbcType="DOUBLE" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, no, deviceId, mpId, signalNumber, mpDes, mpType, year, month, day, hour, curTime, curValue
+    </sql>
+    <select id="findById" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+        select id, no, deviceid, mpid, signalnumber, mpdes, mptype, curtime, curvalue from pm where id = #{id}
+    </select>
+    <insert id="addPM" parameterType="com.horizon.pmdemo.model.PM">
+        insert into pm (no, deviceid, mpid, signalnumber, mpdes, mptype, year, month, day, hour, curtime, curvalue)
+        values (#{no, jdbcType=INTEGER}, #{deviceId,jdbcType=VARCHAR}, #{mpId,jdbcType=VARCHAR},
+        #{signalNumber,jdbcType=VARCHAR},#{mpDes,jdbcType=VARCHAR}, #{mpType,jdbcType=VARCHAR},
+        #{year,jdbcType=VARCHAR}, #{month,jdbcType=VARCHAR}, #{day,jdbcType=VARCHAR}, #{hour,jdbcType=VARCHAR},
+        #{curTime,jdbcType=TIMESTAMP}, #{curValue,jdbcType=DOUBLE})
+    </insert>
+    <insert id="addPMs" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
+        insert into pm (no, deviceid, mpid, signalnumber, mpdes, mptype, year, month, day, hour, curtime, curvalue)
+        values
+        <foreach collection="list" separator="," item="pm" >
+            (#{pm.no, jdbcType=INTEGER}, #{pm.deviceId,jdbcType=VARCHAR}, #{pm.mpId,jdbcType=VARCHAR},
+            #{pm.signalNumber,jdbcType=VARCHAR}, #{pm.mpDes,jdbcType=VARCHAR}, #{pm.mpType,jdbcType=VARCHAR},
+            #{pm.year,jdbcType=VARCHAR}, #{pm.month,jdbcType=VARCHAR}, #{pm.day,jdbcType=VARCHAR}, #{pm.hour,jdbcType=VARCHAR},
+            #{pm.curTime,jdbcType=TIMESTAMP}, #{pm.curValue,jdbcType=DOUBLE})
+        </foreach>
+    </insert>
+    <select id="getValueByNoAndTime" resultType="java.lang.Double">
+        select curvalue from pm where no = #{no} and curtime = #{curtime} limit 1
+    </select>
+    <select id="findPreRecord" resultMap="PreRecord">
+        SELECT curtime, curvalue FROM pm WHERE no = #{no} AND curtime &lt; #{curtime} ORDER BY curtime DESC LIMIT 1
+    </select>
+    <select id="getPreHour" resultType="java.util.Date">
+        select date_add(curtime, interval #{n} hour) from pm where id = #{id}
+    </select>
+    <select id="getPreDay" resultType="java.util.Date">
+        select date_add(curtime, interval #{n} day) from pm where id = #{id}
+    </select>
+    <select id="getPreMonth" resultType="java.util.Date">
+        select date_add(curtime, interval #{n} month) from pm where id = #{id}
+    </select>
+    <select id="getPreYear" resultType="java.util.Date">
+        select date_add(curtime, interval #{n} year) from pm where id = #{id}
+    </select>
+</mapper>
